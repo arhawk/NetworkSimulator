@@ -2,7 +2,10 @@ __author__      = "Zehao Liu"
 __copyright__   = "@2022 CP372 WLU"
 __mortalright__  = "@2022 Zehao Liu reserved"
 
-from common import *
+try:
+    from .common import *
+except ImportError:  # pragma: no cover
+    from common import *
 
 class Node:
     def __init__(self, ID, networksimulator, costs):

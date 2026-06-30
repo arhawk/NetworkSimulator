@@ -1,0 +1,6 @@
+{
+  "name": "default",
+  "protocol": "UDP",
+  "description": "Datagram socket echo demo."
+}
+

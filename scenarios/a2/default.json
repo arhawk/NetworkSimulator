@@ -1,0 +1,7 @@
+{
+  "max_messages": 5,
+  "loss_prob": 0.0,
+  "corrupt_prob": 0.0,
+  "avg_delay": 1.0
+}
+

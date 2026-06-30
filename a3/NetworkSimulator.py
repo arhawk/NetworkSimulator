@@ -1,19 +1,20 @@
-#from Random import *
-import random , sys
-from common import *
-from Node import *
+from __future__ import annotations
+
+import random, sys
 import copy
 
-class NetworkSimulator:
-    def __init__(self):
-        print("Initializing Network Simulator")
+try:
+    from .common import *
+    from .Node import *
+except ImportError:  # pragma: no cover
+    from common import *
+    from Node import *
 
-        seed = 10 #int(input("Enter random seed: "))
-        trace = 2 #int(input("Enter TRACE: "))        
+class NetworkSimulator:
+    def __init__(self, seed=10, trace=2, num_nodes=9, link_changes=True):
+        print("Initializing Network Simulator")
         self.TRACE = trace
-        
-        num_nodes = 9 #int(input("Enter number of nodes:"))
-        
+
         self.rand = random.seed(seed);        # instantiate Random number generator with provided seed
 
         sum = float(0.0);              # test random number generator for students 
@@ -31,7 +32,7 @@ class NetworkSimulator:
         self.NUM_NODES = num_nodes
         self.connectcosts = [ [0]*self.NUM_NODES for i in range(self.NUM_NODES) ]
         self.INFINITY = 999
-        self.LINKCHANGES=1
+        self.LINKCHANGES=1 if link_changes else 0
         self.eventList =  EventList()          # instantiate event list (initially empty)
 
         if self.NUM_NODES == 4:
@@ -244,6 +245,10 @@ class NetworkSimulator:
                 print("Path to reach other nodes:", self.nodes[i].routes)
                 print('\n\n')               
 
+    def simulate(self):
+        self.runSimulator()
+        return self.nodes
+
     def tolayer2(self, packet):
 
         #be nice: check if source and destination id's are reasonable
@@ -306,7 +311,13 @@ class NetworkSimulator:
         self.eventList.add(ev)      
 
 if __name__ == '__main__':
-    simulator = NetworkSimulator()
+    import os
 
-    simulator.runSimulator()
+    if __package__ in {None, ""}:
+        sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+
+    from main import main as unified_main
+
+    sys.argv = [sys.argv[0], "a3", *sys.argv[1:]]
+    raise SystemExit(unified_main())
     

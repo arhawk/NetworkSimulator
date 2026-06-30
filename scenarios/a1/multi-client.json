@@ -1,0 +1,6 @@
+{
+  "name": "multi-client",
+  "protocol": "TCP",
+  "description": "Multi-client socket demo with concurrent connections."
+}
+

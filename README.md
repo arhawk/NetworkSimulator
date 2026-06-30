@@ -1,21 +1,110 @@
 # NetworkSimulator
-## a1 simulate the process of Socket programming in python using datagram sockets (UDP).
-The client and server communicate according to the protocol specifications. The protocol consists of four phases. In the first two phases, the client and the server use UDP protocol to communicate and in the last two phases they use TCP protocol for communication. The client and server communicate by sending packets.
 
-## a2 simulate a reliable transport protocol
-The simulator provides the interface to the application layer (output and deliverData) and the interface provided by the network layer to the transport layer (udt_send, input).
+This repository packages three undergraduate networking assignments into one shared simulation framework.
 
-Common.py: include the definitions of classes: Packet, Message, Event, EventType and EventList. You need to know about Packet and Message classes. The rest are used by the simulator. In addition, the constant variables that are needed within different files are defined here. For example, A, to represent the sender entity and B to represent the receiver entity. When the sender/receiver objects are initialized (inside the iniSimulator function of NetworkSimulator.py, they are assigned the correct entity name. The implementation of checksum function is placed in this file as it is used by both the sender and receiver.
-main.py: It asks the user to enter the parameters needed to initialize the simulator. You can hardcode some values when testing your code. It initializes an object of type NetworkSimulator.
+The goal of the refactor is not to force all three projects to share the same business logic. Instead, it gives them a common runtime:
 
-NetworkSimulator.py: The main code for simulator. It includes the implementations for all the interfaces needed to communicate with application layer and network layer. You should not change this code. When initialized, it also creates the sender and receiver objects.The sender and receiver objects are initialized from within the simulator. When the sender and receiver are initialized, they are passed a reference to the current network simulator object.
-sender.py: The functions on the sending side of the transport protocol should be implemented here. It includes the declarations for some other auxiliary functions such as isDuplicate, etc. that is needed in the functions you are going to implement. Each sender/receiver class has a member named networkSimulator. So each sender/receiver object has access to the simulator methods through this member variable.
+- one launcher
+- one config format
+- one reporting format
+- one module registry
+- one place to add scenarios, logging, and output
 
+That makes the repo much easier to present on GitHub, extend for demos, and discuss in interviews.
 
+## What is in here
 
-## a3 Implementing a distributed asynchronous distance vector routing protocol
-Common.py: include the definitions of classes: RTPacket, Event, EventType and EventList. You need to know about the RTPacket class. The rest are used by the simulator.
+- `a1` - transport demos
+  - TCP / UDP style socket demos
+  - simple send/receive flow
+  - good for showing basic networking and client/server structure
+- `a2` - reliable transport simulation
+  - sender / receiver
+  - packet loss, corruption, delay, timers
+  - good for showing protocol design and event-driven simulation
+- `a3` - routing simulation
+  - nodes, routing tables, topology propagation
+  - good for showing distributed-systems style thinking
 
-NetworkSimulator.py: The main code for simulator. It asks the user to enter the parameters needed to initialize the simulator. You can hardcode some values when testing your code. It initializes an object of type NetworkSimulator.
+## Unified architecture
 
-Node.py: It includes the constructor for a Node as well as recvUpdate method. Each Node has an attribute named ns that points to the NetworkSimulator object. So each router has access to the simulator methods through this member variable. For example, if you want to call tolayer2 function from one of the methods in Node.py, you should call it like the following:
+The shared framework lives in `core/` and defines the common lifecycle:
+
+- `simulate()`
+- `load_scenario()`
+- `reset()`
+- `report()`
+
+Module-specific hooks remain separate:
+
+- `send_packet()` for transport-style demos
+- `handle_event()` for event-driven logic
+- `update_routes()` for routing logic
+
+Scenarios are externalized under:
+
+```text
+scenarios/<module>/<scenario>.json
+```
+
+That means most run-time behavior can be adjusted without editing code.
+
+## How to run
+
+Primary launcher:
+
+```bash
+python3 main.py a1 --scenario tcp
+python3 main.py a2 --scenario default
+python3 main.py a3 --scenario default --param num_nodes=3 --param link_changes=false
+```
+
+Useful flags:
+
+- `--scenario` selects a scenario file
+- `--seed` sets the simulation seed
+- `--trace` controls verbosity
+- `--config-dir` points to the scenario directory
+- `--param KEY=VALUE` overrides scenario values from the command line
+
+Legacy course entrypoints still work where preserved:
+
+```bash
+python3 a2/main.py
+python3 a2/main.py --scenario default --param max_messages=1
+```
+
+## Example outputs
+
+The unified report prints the same structure for every module:
+
+- module name
+- scenario name
+- success state
+- summary
+- metrics
+- ordered steps
+
+That makes the repo easier to read quickly and easier to show in screenshots or demo recordings.
+
+## Project structure
+
+- `core/` - shared framework, config, registry, reporting, scenario loading
+- `a1/` - transport demo module
+- `a2/` - reliable transport simulator
+- `a3/` - routing simulator
+- `scenarios/` - externalized run configurations
+- `main.py` - top-level unified CLI
+
+## Why this is a stronger portfolio project
+
+- It shows systems thinking, not just a single assignment submission.
+- It separates framework concerns from algorithm concerns.
+- It supports multiple simulation styles under one interface.
+- It is easier to extend, benchmark, and present as a coherent engineering project.
+
+## Notes
+
+- Existing coursework logic is preserved.
+- The refactor is intentionally incremental so each module can still be inspected on its own.
+- The framework is designed to be improved further with better scenario coverage, richer reports, and tighter CLI integration.
